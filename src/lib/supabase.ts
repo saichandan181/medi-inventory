@@ -1,9 +1,8 @@
 
-import { createClient } from '@supabase/supabase-js';
+import { supabase } from '@/integrations/supabase/client';
 
-// Note: These values should be set in your Supabase project dashboard
-// and accessed here from environment variables in a production environment
-export const supabaseUrl = 'https://your-supabase-project-url.supabase.co';
-export const supabaseAnonKey = 'your-supabase-anon-key';
+// Export the existing supabase client from the integrations directory
+export { supabase };
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+// The supabase URL and key are now defined in the integrations/supabase/client.ts file,
+// so we don't need to redefine them here.
