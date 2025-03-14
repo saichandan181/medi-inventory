@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 import { ThemeToggle } from "./ThemeToggle";
 import { Sidebar } from "./Sidebar";
 import { Button } from "@/components/ui/button";
+import { UserProfileMenu } from "./UserProfileMenu";
 
 interface MainLayoutProps {
   children: React.ReactNode;
@@ -67,6 +68,7 @@ export const MainLayout = ({ children }: MainLayoutProps) => {
             <Bell size={20} className="text-primary-300" />
           </Button>
           <ThemeToggle />
+          <UserProfileMenu />
         </div>
       </header>
 
