@@ -10,10 +10,12 @@ import { useQuery } from "@tanstack/react-query";
 import { getMedicines, type Medicine } from "@/services/inventoryService";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
-import { Link } from "react-router-dom";
+import { MedicineDialog } from "@/components/medicines/MedicineDialog";
+import * as XLSX from 'xlsx';
 
 const Medicines = () => {
   const [searchTerm, setSearchTerm] = useState("");
+  const [openAddDialog, setOpenAddDialog] = useState(false);
 
   const { data: medicines, isLoading } = useQuery({
     queryKey: ['medicines'],
@@ -26,6 +28,28 @@ const Medicines = () => {
     medicine.category.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  const handleExport = () => {
+    if (!medicines || medicines.length === 0) return;
+    
+    const worksheet = XLSX.utils.json_to_sheet(medicines.map(medicine => ({
+      Name: medicine.name,
+      'Generic Name': medicine.generic_name,
+      Manufacturer: medicine.manufacturer,
+      Category: medicine.category,
+      'Batch Number': medicine.batch_number,
+      'Expiry Date': medicine.expiry_date,
+      'Stock Quantity': medicine.stock_quantity,
+      'Unit Price': `$${medicine.unit_price.toFixed(2)}`,
+      'Reorder Level': medicine.reorder_level,
+      'Storage Condition': medicine.storage_condition,
+      Description: medicine.description,
+    })));
+    
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Medicines');
+    XLSX.writeFile(workbook, 'Medicines_Inventory.xlsx');
+  };
+
   return (
     <MainLayout>
       <PageHeader 
@@ -33,11 +57,11 @@ const Medicines = () => {
         description="Manage your medicine inventory"
         actions={
           <div className="flex gap-2">
-            <Button variant="outline">
+            <Button variant="outline" onClick={handleExport}>
               <FileDown className="mr-2 h-4 w-4" />
               Export
             </Button>
-            <Button>
+            <Button onClick={() => setOpenAddDialog(true)}>
               <Plus className="mr-2 h-4 w-4" />
               Add Medicine
             </Button>
@@ -116,6 +140,8 @@ const Medicines = () => {
           )}
         </div>
       </div>
+
+      <MedicineDialog open={openAddDialog} onOpenChange={setOpenAddDialog} />
     </MainLayout>
   );
 };
