@@ -8,6 +8,10 @@ import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
+import Medicines from "./pages/Medicines";
+import LowStock from "./pages/LowStock";
+import ExpiryTracking from "./pages/ExpiryTracking";
+import Suppliers from "./pages/Suppliers";
 import { AuthProvider } from "./context/AuthContext";
 import { ProtectedRoute } from "./components/auth/ProtectedRoute";
 
@@ -29,6 +33,26 @@ const App = () => (
             <Route path="/" element={
               <ProtectedRoute>
                 <Index />
+              </ProtectedRoute>
+            } />
+            <Route path="/medicines" element={
+              <ProtectedRoute>
+                <Medicines />
+              </ProtectedRoute>
+            } />
+            <Route path="/low-stock" element={
+              <ProtectedRoute>
+                <LowStock />
+              </ProtectedRoute>
+            } />
+            <Route path="/expiry-tracking" element={
+              <ProtectedRoute>
+                <ExpiryTracking />
+              </ProtectedRoute>
+            } />
+            <Route path="/suppliers" element={
+              <ProtectedRoute>
+                <Suppliers />
               </ProtectedRoute>
             } />
             

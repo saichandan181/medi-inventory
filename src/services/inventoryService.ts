@@ -150,6 +150,48 @@ export const getRecentTransactions = async (limit = 5): Promise<Transaction[]> =
     throw new Error(error.message);
   }
   
+  // Ensure the data matches our Transaction type
+  const typedData = data?.map(item => ({
+    ...item,
+    type: item.type as 'purchase' | 'sale' | 'return' | 'adjustment'
+  })) || [];
+  
+  return typedData;
+};
+
+// Low stock medicines
+export const getLowStockMedicines = async (): Promise<Medicine[]> => {
+  const { data, error } = await supabase
+    .from('medicines')
+    .select('*')
+    .lt('stock_quantity', 'reorder_level')
+    .order('name');
+    
+  if (error) {
+    console.error('Error fetching low stock medicines:', error);
+    throw new Error(error.message);
+  }
+  
+  return data || [];
+};
+
+// Expiring medicines
+export const getExpiringMedicines = async (daysThreshold = 30): Promise<Medicine[]> => {
+  const thresholdDate = new Date();
+  thresholdDate.setDate(thresholdDate.getDate() + daysThreshold);
+  
+  const { data, error } = await supabase
+    .from('medicines')
+    .select('*')
+    .lt('expiry_date', thresholdDate.toISOString().split('T')[0])
+    .gt('expiry_date', new Date().toISOString().split('T')[0])
+    .order('expiry_date');
+    
+  if (error) {
+    console.error('Error fetching expiring medicines:', error);
+    throw new Error(error.message);
+  }
+  
   return data || [];
 };
 

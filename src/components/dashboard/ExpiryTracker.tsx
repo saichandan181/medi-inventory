@@ -1,16 +1,25 @@
 
 import { Calendar } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-
-// Mock data for expiry tracking
-const expiryItems = [
-  { id: 1, name: "Insulin Regular", batch: "IN4592", expiry: "2023-12-15", daysLeft: 5 },
-  { id: 2, name: "Atorvastatin 20mg", batch: "AT2031", expiry: "2023-12-20", daysLeft: 10 },
-  { id: 3, name: "Omeprazole 20mg", batch: "OM1298", expiry: "2023-12-25", daysLeft: 15 },
-  { id: 4, name: "Fluoxetine 20mg", batch: "FL5673", expiry: "2023-12-30", daysLeft: 20 },
-];
+import { useQuery } from "@tanstack/react-query";
+import { getExpiringMedicines } from "@/services/inventoryService";
+import { Link } from "react-router-dom";
+import { differenceInDays } from "date-fns";
 
 export const ExpiryTracker = () => {
+  const { data: expiryItems, isLoading } = useQuery({
+    queryKey: ['expiringMedicines30'],
+    queryFn: () => getExpiringMedicines(30) // Get items expiring in the next 30 days
+  });
+
+  const limitedItems = expiryItems?.slice(0, 4) || [];
+
+  const getDaysLeft = (expiryDate: string) => {
+    const today = new Date();
+    const expiry = new Date(expiryDate);
+    return Math.max(0, differenceInDays(expiry, today));
+  };
+
   return (
     <div className="bg-card rounded-xl shadow-soft overflow-hidden transition-apple hover:shadow-md">
       <div className="flex items-center justify-between px-5 py-4 border-b border-border">
@@ -19,39 +28,49 @@ export const ExpiryTracker = () => {
           <h3 className="font-medium">Upcoming Expiries</h3>
         </div>
         <Badge variant="outline" className="bg-secondary-500/10 text-secondary-500 border-secondary-500/20">
-          {expiryItems.length} items
+          {isLoading ? "..." : expiryItems?.length || 0} items
         </Badge>
       </div>
       
-      <div className="divide-y divide-border">
-        {expiryItems.map((item) => (
-          <div key={item.id} className="px-5 py-3 hover:bg-muted/30 transition-apple">
-            <div className="flex justify-between items-center">
-              <div>
-                <p className="font-medium">{item.name}</p>
-                <p className="text-sm text-muted-foreground">Batch: {item.batch}</p>
+      {isLoading ? (
+        <div className="p-4 text-center text-muted-foreground">Loading expiry data...</div>
+      ) : limitedItems.length > 0 ? (
+        <div className="divide-y divide-border">
+          {limitedItems.map((item) => {
+            const daysLeft = getDaysLeft(item.expiry_date);
+            
+            return (
+              <div key={item.id} className="px-5 py-3 hover:bg-muted/30 transition-apple">
+                <div className="flex justify-between items-center">
+                  <div>
+                    <p className="font-medium">{item.name}</p>
+                    <p className="text-sm text-muted-foreground">Batch: {item.batch_number || 'N/A'}</p>
+                  </div>
+                  <div className="text-right">
+                    <Badge variant="outline" 
+                      className={
+                        daysLeft <= 10 
+                          ? "bg-accent-500/10 text-accent-500 border-accent-500/20" 
+                          : "bg-secondary-500/10 text-secondary-500 border-secondary-500/20"
+                      }
+                    >
+                      {daysLeft} days left
+                    </Badge>
+                    <p className="text-xs text-muted-foreground mt-1">{item.expiry_date}</p>
+                  </div>
+                </div>
               </div>
-              <div className="text-right">
-                <Badge variant="outline" 
-                  className={
-                    item.daysLeft <= 10 
-                      ? "bg-accent-500/10 text-accent-500 border-accent-500/20" 
-                      : "bg-secondary-500/10 text-secondary-500 border-secondary-500/20"
-                  }
-                >
-                  {item.daysLeft} days left
-                </Badge>
-                <p className="text-xs text-muted-foreground mt-1">{item.expiry}</p>
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
+            )
+          })}
+        </div>
+      ) : (
+        <div className="p-4 text-center text-muted-foreground">No items expiring soon</div>
+      )}
       
       <div className="px-5 py-3 border-t border-border">
-        <button className="text-sm text-secondary-500 hover:text-secondary-600 font-medium transition-apple">
+        <Link to="/expiry-tracking" className="text-sm text-secondary-500 hover:text-secondary-600 font-medium transition-apple">
           View all expiries
-        </button>
+        </Link>
       </div>
     </div>
   );
