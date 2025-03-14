@@ -69,7 +69,7 @@ export const RecentTransactions = () => {
               {transactions.map((transaction) => (
                 <TableRow key={transaction.id}>
                   <TableCell className="font-medium">
-                    {transaction.medicines?.name || 'Unknown medicine'}
+                    {transaction.medicine?.name || 'Unknown medicine'}
                   </TableCell>
                   <TableCell>
                     <Badge variant="outline" className={getTransactionTypeColor(transaction.type)}>

@@ -1,5 +1,5 @@
 
-import { supabase } from '@/lib/supabase';
+import { supabase } from '@/integrations/supabase/client';
 
 // Define types for our data models
 export interface Medicine {
@@ -43,6 +43,10 @@ export interface Transaction {
   notes?: string;
   created_at: string;
   created_by: string;
+  // Add medicine relation to match joined data from Supabase
+  medicine?: {
+    name: string;
+  };
 }
 
 // Medicine operations
@@ -137,7 +141,7 @@ export const getSuppliers = async (): Promise<Supplier[]> => {
 export const getRecentTransactions = async (limit = 5): Promise<Transaction[]> => {
   const { data, error } = await supabase
     .from('transactions')
-    .select('*, medicines(name)')
+    .select('*, medicine:medicine_id(name)')
     .order('created_at', { ascending: false })
     .limit(limit);
     
