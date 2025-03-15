@@ -78,7 +78,7 @@ export const RecentTransactions = () => {
                   </TableCell>
                   <TableCell>{transaction.quantity}</TableCell>
                   <TableCell>{getFormattedDate(transaction.created_at)}</TableCell>
-                  <TableCell className="text-right">${transaction.total_price.toFixed(2)}</TableCell>
+                  <TableCell className="text-right">₹{transaction.total_price.toFixed(2)}</TableCell>
                 </TableRow>
               ))}
             </TableBody>

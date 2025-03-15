@@ -1,3 +1,4 @@
+
 import { supabase } from '@/integrations/supabase/client';
 
 // Define types for our data models
@@ -50,6 +51,47 @@ export interface Transaction {
   // Add medicine relation to match joined data from Supabase
   medicine?: {
     name: string;
+  };
+}
+
+// New Invoice interface
+export interface Invoice {
+  id: string;
+  invoice_number: string;
+  invoice_date: string;
+  supplier_id?: string;
+  customer_name: string;
+  customer_gstin?: string;
+  customer_address?: string;
+  customer_dl_number?: string;
+  customer_pan?: string;
+  total_amount: number;
+  total_tax: number;
+  grand_total: number;
+  payment_type: 'cash' | 'credit';
+  notes?: string;
+  created_at: string;
+  created_by: string;
+}
+
+export interface InvoiceItem {
+  id: string;
+  invoice_id: string;
+  medicine_id: string;
+  batch_number: string;
+  expiry_date: string;
+  hsn_code: string;
+  quantity: number;
+  free_quantity: number;
+  discount_percentage: number;
+  mrp: number;
+  rate: number;
+  gst_percentage: number;
+  gst_amount: number;
+  total_amount: number;
+  medicine?: {
+    name: string;
+    manufacturer: string;
   };
 }
 
@@ -220,4 +262,84 @@ export const getDashboardStats = async () => {
     lowStockItems: lowStockResult.data?.count || 0,
     pendingOrders: pendingOrdersResult.data?.count || 0
   };
+};
+
+// Invoice operations
+export const createInvoice = async (invoice: Omit<Invoice, 'id' | 'created_at'>, invoiceItems: Omit<InvoiceItem, 'id' | 'invoice_id'>[]): Promise<{ invoice: Invoice, items: InvoiceItem[] }> => {
+  // Start a transaction
+  const { data: newInvoice, error: invoiceError } = await supabase
+    .from('invoices')
+    .insert([invoice])
+    .select()
+    .single();
+    
+  if (invoiceError) {
+    console.error('Error creating invoice:', invoiceError);
+    throw new Error(invoiceError.message);
+  }
+  
+  // Add invoice items
+  const itemsWithInvoiceId = invoiceItems.map(item => ({
+    ...item,
+    invoice_id: newInvoice.id
+  }));
+  
+  const { data: newItems, error: itemsError } = await supabase
+    .from('invoice_items')
+    .insert(itemsWithInvoiceId)
+    .select();
+    
+  if (itemsError) {
+    console.error('Error creating invoice items:', itemsError);
+    throw new Error(itemsError.message);
+  }
+  
+  return {
+    invoice: newInvoice,
+    items: newItems
+  };
+};
+
+export const getInvoiceWithItems = async (invoiceId: string): Promise<{ invoice: Invoice, items: InvoiceItem[] }> => {
+  const [invoiceResult, itemsResult] = await Promise.all([
+    supabase
+      .from('invoices')
+      .select('*')
+      .eq('id', invoiceId)
+      .single(),
+    supabase
+      .from('invoice_items')
+      .select('*, medicine:medicine_id(name, manufacturer)')
+      .eq('invoice_id', invoiceId)
+  ]);
+  
+  if (invoiceResult.error) {
+    console.error(`Error fetching invoice with ID ${invoiceId}:`, invoiceResult.error);
+    throw new Error(invoiceResult.error.message);
+  }
+  
+  if (itemsResult.error) {
+    console.error(`Error fetching invoice items for invoice ID ${invoiceId}:`, itemsResult.error);
+    throw new Error(itemsResult.error.message);
+  }
+  
+  return {
+    invoice: invoiceResult.data,
+    items: itemsResult.data || []
+  };
+};
+
+export const getRecentInvoices = async (limit = a5): Promise<Invoice[]> => {
+  const { data, error } = await supabase
+    .from('invoices')
+    .select('*')
+    .order('created_at', { ascending: false })
+    .limit(limit);
+    
+  if (error) {
+    console.error('Error fetching recent invoices:', error);
+    throw new Error(error.message);
+  }
+  
+  return data || [];
 };

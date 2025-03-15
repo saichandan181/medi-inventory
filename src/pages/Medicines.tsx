@@ -39,7 +39,7 @@ const Medicines = () => {
       'Batch Number': medicine.batch_number,
       'Expiry Date': medicine.expiry_date,
       'Stock Quantity': medicine.stock_quantity,
-      'Unit Price': `$${medicine.unit_price.toFixed(2)}`,
+      'Unit Price': `₹${medicine.unit_price.toFixed(2)}`,
       'Reorder Level': medicine.reorder_level,
       'Storage Condition': medicine.storage_condition,
       Description: medicine.description,
@@ -113,7 +113,7 @@ const Medicines = () => {
                       <div className="font-medium">{medicine.stock_quantity}</div>
                       <div className="text-xs text-muted-foreground">Min: {medicine.reorder_level}</div>
                     </TableCell>
-                    <TableCell>${medicine.unit_price.toFixed(2)}</TableCell>
+                    <TableCell>₹{medicine.unit_price.toFixed(2)}</TableCell>
                     <TableCell>
                       {medicine.expiry_date ? format(new Date(medicine.expiry_date), 'MMM dd, yyyy') : 'N/A'}
                     </TableCell>

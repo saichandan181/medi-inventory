@@ -76,8 +76,8 @@ const StockHistory = () => {
                       </TableCell>
                       <TableCell>{transaction.medicine?.name || 'Unknown'}</TableCell>
                       <TableCell className={transaction.quantity < 0 ? "text-red-500" : ""}>{transaction.quantity}</TableCell>
-                      <TableCell>${transaction.unit_price.toFixed(2)}</TableCell>
-                      <TableCell>${transaction.total_price.toFixed(2)}</TableCell>
+                      <TableCell>₹{transaction.unit_price.toFixed(2)}</TableCell>
+                      <TableCell>₹{transaction.total_price.toFixed(2)}</TableCell>
                       <TableCell>{transaction.reference_number || '-'}</TableCell>
                     </TableRow>
                   );
