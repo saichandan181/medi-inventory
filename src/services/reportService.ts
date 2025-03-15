@@ -38,14 +38,13 @@ export const getSalesReport = async (
   const startStr = start.toISOString();
   const endStr = end.toISOString();
 
-  // Get transactions within date range
-  const { data: transactions, error } = await supabase
-    .from('transactions')
-    .select('*')
-    .eq('type', 'sale')
-    .gte('created_at', startStr)
-    .lte('created_at', endStr)
-    .order('created_at');
+  // Fetch invoice data within date range
+  const { data: invoices, error } = await supabase
+    .from('invoices')
+    .select('id, invoice_date, total_amount, invoice_items(quantity)')
+    .gte('invoice_date', startStr)
+    .lte('invoice_date', endStr)
+    .order('invoice_date');
 
   if (error) {
     console.error('Error fetching sales data:', error);
@@ -53,19 +52,17 @@ export const getSalesReport = async (
   }
 
   // Process data based on period type
-  const typedTransactions = transactions as Transaction[];
-  
-  return aggregateTransactionsByPeriod(typedTransactions, periodType);
+  return aggregateInvoicesByPeriod(invoices, periodType);
 };
 
-const aggregateTransactionsByPeriod = (
-  transactions: Transaction[],
+const aggregateInvoicesByPeriod = (
+  invoices: any[],
   periodType: PeriodType
 ): SalesReportData[] => {
   const periodsMap = new Map<string, SalesReportData>();
 
-  transactions.forEach(transaction => {
-    const date = new Date(transaction.created_at);
+  invoices.forEach(invoice => {
+    const date = new Date(invoice.invoice_date);
     let periodKey: string;
 
     // Format period key based on period type
@@ -85,12 +82,22 @@ const aggregateTransactionsByPeriod = (
     };
 
     // Update period data
-    periodData.totalSales += transaction.total_price;
-    periodData.itemsSold += transaction.quantity;
+    periodData.totalSales += invoice.total_amount || 0;
+    
+    // Calculate total items sold from invoice_items
+    const itemsSold = invoice.invoice_items ? 
+      invoice.invoice_items.reduce((sum: number, item: any) => sum + (item.quantity || 0), 0) : 0;
+    
+    periodData.itemsSold += itemsSold;
 
     // Store updated period data
     periodsMap.set(periodKey, periodData);
   });
+
+  // If no sales data, return empty array
+  if (periodsMap.size === 0) {
+    return [];
+  }
 
   // Convert map to array and sort by period
   return Array.from(periodsMap.values()).sort((a, b) => a.period.localeCompare(b.period));

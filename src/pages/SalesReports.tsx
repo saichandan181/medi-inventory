@@ -95,7 +95,7 @@ const SalesReports = () => {
     <MainLayout>
       <PageHeader
         title="Sales Reports"
-        description="View and analyze your sales data"
+        description="View and analyze your sales data from actual invoices"
       />
 
       <div className="mb-6 flex justify-between items-center">
