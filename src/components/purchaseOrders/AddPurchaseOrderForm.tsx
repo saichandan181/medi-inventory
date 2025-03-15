@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -38,6 +38,9 @@ import { getMedicines, getSuppliers, Medicine, Supplier } from "@/services/inven
 const purchaseOrderSchema = z.object({
   supplierId: z.string().min(1, "Supplier is required"),
   referenceNumber: z.string().min(1, "Reference number is required"),
+  orderDate: z.date({
+    required_error: "Order date is required",
+  }),
   expectedDeliveryDate: z.date(),
   notes: z.string().optional(),
   items: z.array(
@@ -73,6 +76,7 @@ export const AddPurchaseOrderForm = ({ onSuccess }: AddPurchaseOrderFormProps) =
     defaultValues: {
       supplierId: "",
       referenceNumber: `PO-${new Date().getFullYear()}-${String(Math.floor(1000 + Math.random() * 9000)).substring(1)}`,
+      orderDate: new Date(),
       expectedDeliveryDate: addDays(new Date(), 7),
       notes: "",
       items: [
@@ -111,6 +115,7 @@ export const AddPurchaseOrderForm = ({ onSuccess }: AddPurchaseOrderFormProps) =
         .insert([{
           supplier_id: data.supplierId,
           reference_number: data.referenceNumber,
+          order_date: data.orderDate.toISOString(),
           expected_delivery_date: data.expectedDeliveryDate.toISOString(),
           notes: data.notes || null,
           status: 'pending',
@@ -198,45 +203,86 @@ export const AddPurchaseOrderForm = ({ onSuccess }: AddPurchaseOrderFormProps) =
           />
         </div>
 
-        <FormField
-          control={form.control}
-          name="expectedDeliveryDate"
-          render={({ field }) => (
-            <FormItem className="flex flex-col">
-              <FormLabel>Expected Delivery Date</FormLabel>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <FormControl>
-                    <Button
-                      variant={"outline"}
-                      className={cn(
-                        "w-full pl-3 text-left font-normal",
-                        !field.value && "text-muted-foreground"
-                      )}
-                    >
-                      {field.value ? (
-                        format(field.value, "PPP")
-                      ) : (
-                        <span>Pick a date</span>
-                      )}
-                      <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                    </Button>
-                  </FormControl>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
-                  <Calendar
-                    mode="single"
-                    selected={field.value}
-                    onSelect={field.onChange}
-                    disabled={(date) => date < new Date()}
-                    initialFocus
-                  />
-                </PopoverContent>
-              </Popover>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <FormField
+            control={form.control}
+            name="orderDate"
+            render={({ field }) => (
+              <FormItem className="flex flex-col">
+                <FormLabel>Order Date</FormLabel>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <FormControl>
+                      <Button
+                        variant={"outline"}
+                        className={cn(
+                          "w-full pl-3 text-left font-normal",
+                          !field.value && "text-muted-foreground"
+                        )}
+                      >
+                        {field.value ? (
+                          format(field.value, "PPP")
+                        ) : (
+                          <span>Pick a date</span>
+                        )}
+                        <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                      </Button>
+                    </FormControl>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={field.value}
+                      onSelect={field.onChange}
+                      initialFocus
+                    />
+                  </PopoverContent>
+                </Popover>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="expectedDeliveryDate"
+            render={({ field }) => (
+              <FormItem className="flex flex-col">
+                <FormLabel>Expected Delivery Date</FormLabel>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <FormControl>
+                      <Button
+                        variant={"outline"}
+                        className={cn(
+                          "w-full pl-3 text-left font-normal",
+                          !field.value && "text-muted-foreground"
+                        )}
+                      >
+                        {field.value ? (
+                          format(field.value, "PPP")
+                        ) : (
+                          <span>Pick a date</span>
+                        )}
+                        <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                      </Button>
+                    </FormControl>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={field.value}
+                      onSelect={field.onChange}
+                      disabled={(date) => date < new Date()}
+                      initialFocus
+                    />
+                  </PopoverContent>
+                </Popover>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
 
         <div className="space-y-4">
           <div className="flex justify-between items-center">

@@ -1,4 +1,3 @@
-
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ThemeProvider } from "@/components/ui/theme-provider";
@@ -21,6 +20,7 @@ import Settings from './pages/Settings';
 import NotFound from './pages/NotFound';
 import Invoices from './pages/Invoices';
 import InvoiceDetail from './pages/InvoiceDetail';
+import MedicineCategories from "@/pages/MedicineCategories";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -96,6 +96,7 @@ function App() {
               } />
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
+              <Route path="/medicines/categories" element={<ProtectedRoute><MedicineCategories /></ProtectedRoute>} />
               <Route path="*" element={<NotFound />} />
             </Routes>
             <Toaster />

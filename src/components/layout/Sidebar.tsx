@@ -151,7 +151,7 @@ export const Sidebar = ({ isOpen, onClose, isMobileView }: SidebarProps) => {
               onToggleExpand={() => toggleExpand('medicines')}
               subItems={[
                 { label: "All Medicines", to: "/medicines" },
-                { label: "Add New", to: "/medicines/new" },
+                { label: "Add New", to: "/medicines" },
                 { label: "Categories", to: "/medicines/categories" },
               ]}
             />

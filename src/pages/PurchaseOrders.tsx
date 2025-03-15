@@ -91,7 +91,7 @@ const PurchaseOrders = () => {
                   <TableRow key={order.id}>
                     <TableCell className="font-medium">{order.reference_number}</TableCell>
                     <TableCell>{order.suppliers?.name || 'N/A'}</TableCell>
-                    <TableCell>{format(new Date(order.order_date), 'MMM dd, yyyy')}</TableCell>
+                    <TableCell>{order.order_date ? format(new Date(order.order_date), 'MMM dd, yyyy') : 'N/A'}</TableCell>
                     <TableCell>{format(new Date(order.expected_delivery_date), 'MMM dd, yyyy')}</TableCell>
                     <TableCell>
                       <Badge 
