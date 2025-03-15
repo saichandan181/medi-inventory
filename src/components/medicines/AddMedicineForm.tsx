@@ -1,4 +1,5 @@
-import { useState } from "react";
+
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -14,7 +15,8 @@ import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
-import { CalendarIcon } from "lucide-react";
+import { CalendarIcon, RotateCw } from "lucide-react";
+import { useMedicineAI } from "@/hooks/useMedicineAI";
 
 const formSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
@@ -39,6 +41,10 @@ interface AddMedicineFormProps {
 export const AddMedicineForm = ({ onSuccess }: AddMedicineFormProps) => {
   const queryClient = useQueryClient();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [nameInput, setNameInput] = useState("");
+  const [aiProcessing, setAiProcessing] = useState(false);
+  const { getMedicineDetails, isLoading: isLoadingAI } = useMedicineAI();
+  const [lastProcessedName, setLastProcessedName] = useState("");
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -56,6 +62,38 @@ export const AddMedicineForm = ({ onSuccess }: AddMedicineFormProps) => {
       description: "",
     },
   });
+
+  // Function to handle autofill using Gemini AI
+  const handleAutofill = async () => {
+    if (nameInput && nameInput.trim().length >= 3 && nameInput !== lastProcessedName) {
+      setAiProcessing(true);
+      const details = await getMedicineDetails(nameInput);
+      setAiProcessing(false);
+      
+      if (details) {
+        form.setValue("generic_name", details.generic_name);
+        form.setValue("manufacturer", details.manufacturer);
+        form.setValue("category", details.category);
+        setLastProcessedName(nameInput);
+        
+        toast({
+          title: "Fields updated",
+          description: "Medicine details have been auto-filled.",
+        });
+      }
+    }
+  };
+
+  // Debounced autofill on name change
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (nameInput && nameInput.trim().length >= 3 && nameInput !== lastProcessedName) {
+        handleAutofill();
+      }
+    }, 1000);
+    
+    return () => clearTimeout(timer);
+  }, [nameInput]);
 
   const onSubmit = async (data: FormValues) => {
     setIsSubmitting(true);
@@ -82,6 +120,8 @@ export const AddMedicineForm = ({ onSuccess }: AddMedicineFormProps) => {
       queryClient.invalidateQueries({ queryKey: ['medicines'] });
       queryClient.invalidateQueries({ queryKey: ['lowStockMedicines'] });
       form.reset();
+      setNameInput("");
+      setLastProcessedName("");
       onSuccess?.();
     } catch (error) {
       console.error("Error adding medicine:", error);
@@ -105,9 +145,35 @@ export const AddMedicineForm = ({ onSuccess }: AddMedicineFormProps) => {
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Medicine Name *</FormLabel>
-                <FormControl>
-                  <Input placeholder="Enter medicine name" {...field} />
-                </FormControl>
+                <div className="flex gap-2">
+                  <FormControl>
+                    <Input 
+                      placeholder="Enter medicine name" 
+                      {...field} 
+                      value={nameInput || field.value}
+                      onChange={(e) => {
+                        field.onChange(e);
+                        setNameInput(e.target.value);
+                      }}
+                    />
+                  </FormControl>
+                  <Button 
+                    type="button" 
+                    variant="outline" 
+                    size="icon"
+                    disabled={isLoadingAI || aiProcessing || !nameInput || nameInput.trim().length < 3}
+                    onClick={handleAutofill}
+                    className="flex-shrink-0"
+                    title="Auto-fill medicine details"
+                  >
+                    <RotateCw className={cn("h-4 w-4", (isLoadingAI || aiProcessing) && "animate-spin")} />
+                  </Button>
+                </div>
+                {aiProcessing && (
+                  <div className="text-xs text-muted-foreground mt-1">
+                    Fetching medicine details...
+                  </div>
+                )}
                 <FormMessage />
               </FormItem>
             )}
@@ -149,7 +215,7 @@ export const AddMedicineForm = ({ onSuccess }: AddMedicineFormProps) => {
                 <FormLabel>Category *</FormLabel>
                 <Select 
                   onValueChange={field.onChange} 
-                  defaultValue={field.value}
+                  value={field.value}
                 >
                   <FormControl>
                     <SelectTrigger>
