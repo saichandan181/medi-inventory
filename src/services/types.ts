@@ -57,6 +57,10 @@ export interface Invoice {
   supplier_id?: string;
   customer_name: string;
   customer_phone?: string;
+  customer_address?: string;
+  customer_gstin?: string;
+  customer_dl_number?: string;
+  customer_pan?: string;
   total_amount: number;
   total_tax: number;
   grand_total: number;
