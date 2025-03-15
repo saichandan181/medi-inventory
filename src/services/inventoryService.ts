@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 
 // Define types for our data models
@@ -18,6 +17,11 @@ export interface Medicine {
   created_at: string;
   updated_at: string;
 }
+
+// Type for creating a new medicine that accepts Date for expiry_date
+export type CreateMedicineInput = Omit<Medicine, 'id' | 'created_at' | 'updated_at' | 'expiry_date'> & {
+  expiry_date: Date;
+};
 
 export interface Supplier {
   id: string;
@@ -79,10 +83,16 @@ export const getMedicineById = async (id: string): Promise<Medicine | null> => {
   return data;
 };
 
-export const createMedicine = async (medicine: Omit<Medicine, 'id' | 'created_at' | 'updated_at'>): Promise<Medicine> => {
+export const createMedicine = async (medicine: CreateMedicineInput): Promise<Medicine> => {
+  // Convert Date object to ISO string for Supabase
+  const formattedMedicine = {
+    ...medicine,
+    expiry_date: medicine.expiry_date.toISOString().split('T')[0]
+  };
+  
   const { data, error } = await supabase
     .from('medicines')
-    .insert([{ ...medicine }])
+    .insert([formattedMedicine])
     .select()
     .single();
     

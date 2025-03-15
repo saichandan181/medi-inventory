@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -8,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { createMedicine } from "@/services/inventoryService";
+import { createMedicine, CreateMedicineInput } from "@/services/inventoryService";
 import { toast } from "@/components/ui/use-toast";
 import { useQueryClient } from "@tanstack/react-query";
 import { Calendar } from "@/components/ui/calendar";
@@ -61,7 +60,21 @@ export const AddMedicineForm = ({ onSuccess }: AddMedicineFormProps) => {
   const onSubmit = async (data: FormValues) => {
     setIsSubmitting(true);
     try {
-      await createMedicine(data);
+      const medicineData: CreateMedicineInput = {
+        name: data.name,
+        generic_name: data.generic_name,
+        manufacturer: data.manufacturer,
+        category: data.category,
+        batch_number: data.batch_number,
+        expiry_date: data.expiry_date,
+        stock_quantity: data.stock_quantity,
+        unit_price: data.unit_price,
+        reorder_level: data.reorder_level,
+        storage_condition: data.storage_condition || "",
+        description: data.description || "",
+      };
+      
+      await createMedicine(medicineData);
       toast({
         title: "Medicine added",
         description: `${data.name} has been added to your inventory.`,
