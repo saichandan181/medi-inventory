@@ -53,7 +53,13 @@ export const getSalesReport = async (
   }
 
   // Process data based on period type
-  return aggregateTransactionsByPeriod(transactions || [], periodType);
+  // Cast the raw data to the correct Transaction type
+  const typedTransactions = (transactions || []).map(tx => ({
+    ...tx,
+    type: tx.type as 'sale' | 'purchase' | 'return' | 'adjustment'
+  })) as Transaction[];
+  
+  return aggregateTransactionsByPeriod(typedTransactions, periodType);
 };
 
 const aggregateTransactionsByPeriod = (

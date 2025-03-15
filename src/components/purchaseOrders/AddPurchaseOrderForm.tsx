@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Button } from "@/components/ui/button";
@@ -81,7 +81,12 @@ export const AddPurchaseOrderForm = ({ onSuccess }: AddPurchaseOrderFormProps) =
     },
   });
 
-  const { fields, append, remove } = form.watch();
+  // Use useFieldArray to manage dynamic order items
+  const { fields, append, remove } = useFieldArray({
+    control: form.control,
+    name: "items",
+  });
+
   const items = form.watch('items');
 
   const calculateTotal = () => {
@@ -247,11 +252,11 @@ export const AddPurchaseOrderForm = ({ onSuccess }: AddPurchaseOrderFormProps) =
             </Button>
           </div>
 
-          {items.map((item, index) => (
-            <div key={index} className="p-4 border rounded-md space-y-4">
+          {fields.map((field, index) => (
+            <div key={field.id} className="p-4 border rounded-md space-y-4">
               <div className="flex justify-between items-center">
                 <h4 className="font-medium">Item {index + 1}</h4>
-                {items.length > 1 && (
+                {fields.length > 1 && (
                   <Button
                     type="button"
                     variant="ghost"
@@ -319,7 +324,7 @@ export const AddPurchaseOrderForm = ({ onSuccess }: AddPurchaseOrderFormProps) =
               </div>
 
               <div className="text-right text-sm font-medium">
-                Item Total: ${((items[index].quantity || 0) * (items[index].unitPrice || 0)).toFixed(2)}
+                Item Total: ${((items[index]?.quantity || 0) * (items[index]?.unitPrice || 0)).toFixed(2)}
               </div>
             </div>
           ))}
