@@ -94,7 +94,7 @@ const Invoices = () => {
                             : "bg-green-500/10 text-green-500 border-green-500/20"
                         }
                       >
-                        {invoice.payment_type === 'credit' ? 'Credit' : 'Cash'}
+                        {invoice.payment_type === 'credit' ? 'Credit' : 'Completed'}
                       </Badge>
                     </TableCell>
                     <TableCell>₹{invoice.grand_total.toFixed(2)}</TableCell>

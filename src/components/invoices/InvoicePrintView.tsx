@@ -39,7 +39,7 @@ export const InvoicePrintView = ({ invoice, items }: InvoicePrintViewProps) => {
         <div className="text-right">
           <p><strong>INVOICE No:</strong> {invoice.invoice_number}</p>
           <p><strong>INVOICE Date:</strong> {format(new Date(invoice.invoice_date), 'dd/MM/yyyy')}</p>
-          <p><strong>Type:</strong> {invoice.payment_type === 'credit' ? 'Credit' : 'Cash'}</p>
+          <p><strong>Type:</strong> {invoice.payment_type === 'credit' ? 'Credit' : 'Completed'}</p>
         </div>
       </div>
 

@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -63,7 +62,6 @@ export const AddMedicineForm = ({ onSuccess }: AddMedicineFormProps) => {
     },
   });
 
-  // Function to handle autofill using Gemini AI
   const handleAutofill = async () => {
     if (nameInput && nameInput.trim().length >= 3 && nameInput !== lastProcessedName) {
       setAiProcessing(true);
@@ -84,7 +82,6 @@ export const AddMedicineForm = ({ onSuccess }: AddMedicineFormProps) => {
     }
   };
 
-  // Debounced autofill on name change
   useEffect(() => {
     const timer = setTimeout(() => {
       if (nameInput && nameInput.trim().length >= 3 && nameInput !== lastProcessedName) {
@@ -312,7 +309,7 @@ export const AddMedicineForm = ({ onSuccess }: AddMedicineFormProps) => {
             name="unit_price"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Unit Price ($) *</FormLabel>
+                <FormLabel>Unit Price (₹) *</FormLabel>
                 <FormControl>
                   <Input type="number" min="0" step="0.01" {...field} />
                 </FormControl>

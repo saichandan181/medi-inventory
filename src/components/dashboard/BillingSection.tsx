@@ -22,7 +22,7 @@ export const BillingSection = () => {
   });
 
   const totalBilledAmount = invoices?.reduce((total, invoice) => total + invoice.grand_total, 0) || 0;
-  const pendingInvoices = invoices?.filter(invoice => invoice.payment_type === 'credit').length || 0;
+  const completedInvoices = invoices?.filter(invoice => invoice.payment_type === 'cash').length || 0;
 
   const handleCreateInvoice = () => {
     setOpenNewInvoiceDialog(true);
@@ -49,8 +49,8 @@ export const BillingSection = () => {
           icon={<DollarSign className="h-5 w-5 text-secondary-500" />}
         />
         <DashboardCard
-          title="Pending Invoices"
-          value={pendingInvoices.toString()}
+          title="Completed Invoices"
+          value={completedInvoices.toString()}
           icon={<FileText className="h-5 w-5 text-accent-500" />}
         />
         <Card className="bg-secondary-50 dark:bg-secondary-900/20 border-none shadow-soft">

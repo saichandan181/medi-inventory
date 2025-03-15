@@ -359,7 +359,7 @@ export const AddPurchaseOrderForm = ({ onSuccess }: AddPurchaseOrderFormProps) =
                   name={`items.${index}.unitPrice`}
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Unit Price ($)</FormLabel>
+                      <FormLabel>Unit Price (₹)</FormLabel>
                       <FormControl>
                         <Input type="number" min={0.01} step={0.01} {...field} />
                       </FormControl>
@@ -370,14 +370,14 @@ export const AddPurchaseOrderForm = ({ onSuccess }: AddPurchaseOrderFormProps) =
               </div>
 
               <div className="text-right text-sm font-medium">
-                Item Total: ${((items[index]?.quantity || 0) * (items[index]?.unitPrice || 0)).toFixed(2)}
+                Item Total: ₹{((items[index]?.quantity || 0) * (items[index]?.unitPrice || 0)).toFixed(2)}
               </div>
             </div>
           ))}
 
           <div className="flex justify-end p-4 bg-muted rounded-md">
             <div className="text-lg font-bold">
-              Total: ${calculateTotal().toFixed(2)}
+              Total: ₹{calculateTotal().toFixed(2)}
             </div>
           </div>
         </div>
