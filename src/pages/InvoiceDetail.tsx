@@ -22,9 +22,9 @@ const InvoiceDetail = () => {
   });
 
   const handlePrint = useReactToPrint({
+    content: () => printRef.current,
     documentTitle: `Invoice_${data?.invoice.invoice_number}`,
     onPrintError: (error) => console.error('Print failed:', error),
-    printable: printRef.current,
   });
 
   if (isLoading) {
@@ -66,7 +66,7 @@ const InvoiceDetail = () => {
             </p>
           </div>
         </div>
-        <Button onClick={() => handlePrint()}>
+        <Button onClick={handlePrint}>
           <Printer className="mr-2 h-4 w-4" />
           Print Invoice
         </Button>

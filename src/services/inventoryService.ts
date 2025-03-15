@@ -264,82 +264,132 @@ export const getDashboardStats = async () => {
   };
 };
 
-// Invoice operations
-export const createInvoice = async (invoice: Omit<Invoice, 'id' | 'created_at'>, invoiceItems: Omit<InvoiceItem, 'id' | 'invoice_id'>[]): Promise<{ invoice: Invoice, items: InvoiceItem[] }> => {
-  // Start a transaction
-  const { data: newInvoice, error: invoiceError } = await supabase
-    .from('invoices')
-    .insert([invoice])
-    .select()
-    .single();
-    
-  if (invoiceError) {
-    console.error('Error creating invoice:', invoiceError);
-    throw new Error(invoiceError.message);
-  }
+// Mock data for Invoice functions since the tables don't exist yet
+// These functions will need to be updated once the tables are created in Supabase
+
+export const createInvoice = async (
+  invoice: Omit<Invoice, 'id' | 'created_at'>, 
+  invoiceItems: Omit<InvoiceItem, 'id' | 'invoice_id'>[]
+): Promise<{ invoice: Invoice, items: InvoiceItem[] }> => {
+  // This is a mock implementation until the Supabase tables are created
+  console.log('Creating invoice:', invoice);
+  console.log('Invoice items:', invoiceItems);
   
-  // Add invoice items
-  const itemsWithInvoiceId = invoiceItems.map(item => ({
-    ...item,
-    invoice_id: newInvoice.id
+  // Generate a mock response
+  const mockInvoice: Invoice = {
+    id: `mock-${Date.now()}`,
+    ...invoice,
+    created_at: new Date().toISOString(),
+  };
+  
+  const mockItems: InvoiceItem[] = invoiceItems.map((item, index) => ({
+    id: `mock-item-${Date.now()}-${index}`,
+    invoice_id: mockInvoice.id,
+    ...item
   }));
   
-  const { data: newItems, error: itemsError } = await supabase
-    .from('invoice_items')
-    .insert(itemsWithInvoiceId)
-    .select();
-    
-  if (itemsError) {
-    console.error('Error creating invoice items:', itemsError);
-    throw new Error(itemsError.message);
-  }
-  
   return {
-    invoice: newInvoice,
-    items: newItems
+    invoice: mockInvoice,
+    items: mockItems
   };
 };
 
-export const getInvoiceWithItems = async (invoiceId: string): Promise<{ invoice: Invoice, items: InvoiceItem[] }> => {
-  const [invoiceResult, itemsResult] = await Promise.all([
-    supabase
-      .from('invoices')
-      .select('*')
-      .eq('id', invoiceId)
-      .single(),
-    supabase
-      .from('invoice_items')
-      .select('*, medicine:medicine_id(name, manufacturer)')
-      .eq('invoice_id', invoiceId)
-  ]);
+export const getInvoiceWithItems = async (
+  invoiceId: string
+): Promise<{ invoice: Invoice, items: InvoiceItem[] }> => {
+  // This is a mock implementation until the Supabase tables are created
   
-  if (invoiceResult.error) {
-    console.error(`Error fetching invoice with ID ${invoiceId}:`, invoiceResult.error);
-    throw new Error(invoiceResult.error.message);
-  }
+  // Mock invoice data
+  const mockInvoice: Invoice = {
+    id: invoiceId,
+    invoice_number: `INV-${Math.floor(1000 + Math.random() * 9000)}`,
+    invoice_date: new Date().toISOString(),
+    customer_name: "Sample Customer",
+    customer_address: "123 Sample Street",
+    customer_gstin: "GSTIN12345678",
+    customer_dl_number: "DL-12345",
+    customer_pan: "PANABCD1234E",
+    total_amount: 5000,
+    total_tax: 900,
+    grand_total: 5900,
+    payment_type: 'cash',
+    notes: "",
+    created_at: new Date().toISOString(),
+    created_by: "user-123"
+  };
   
-  if (itemsResult.error) {
-    console.error(`Error fetching invoice items for invoice ID ${invoiceId}:`, itemsResult.error);
-    throw new Error(itemsResult.error.message);
-  }
+  // Mock invoice items
+  const mockItems: InvoiceItem[] = [
+    {
+      id: `item-1-${invoiceId}`,
+      invoice_id: invoiceId,
+      medicine_id: "med-123",
+      batch_number: "B12345",
+      expiry_date: new Date(new Date().setFullYear(new Date().getFullYear() + 1)).toISOString(),
+      hsn_code: "HSN123",
+      quantity: 10,
+      free_quantity: 1,
+      discount_percentage: 5,
+      mrp: 100,
+      rate: 90,
+      gst_percentage: 18,
+      gst_amount: 162,
+      total_amount: 1062,
+      medicine: {
+        name: "Paracetamol",
+        manufacturer: "Sample Pharma"
+      }
+    },
+    {
+      id: `item-2-${invoiceId}`,
+      invoice_id: invoiceId,
+      medicine_id: "med-456",
+      batch_number: "B6789",
+      expiry_date: new Date(new Date().setFullYear(new Date().getFullYear() + 2)).toISOString(),
+      hsn_code: "HSN456",
+      quantity: 20,
+      free_quantity: 2,
+      discount_percentage: 10,
+      mrp: 200,
+      rate: 180,
+      gst_percentage: 12,
+      gst_amount: 432,
+      total_amount: 4032,
+      medicine: {
+        name: "Amlodipine",
+        manufacturer: "Health Pharma"
+      }
+    }
+  ];
   
   return {
-    invoice: invoiceResult.data,
-    items: itemsResult.data || []
+    invoice: mockInvoice,
+    items: mockItems
   };
 };
 
-export const getRecentInvoices = async (limit = a5): Promise<Invoice[]> => {
-  const { data, error } = await supabase
-    .from('invoices')
-    .select('*')
-    .order('created_at', { ascending: false })
-    .limit(limit);
-    
-  if (error) {
-    console.error('Error fetching recent invoices:', error);
-    throw new Error(error.message);
-  }
+export const getRecentInvoices = async (limit = 5): Promise<Invoice[]> => {
+  // This is a mock implementation until the Supabase tables are created
   
-  return data || [];
+  // Generate mock invoices
+  const mockInvoices: Invoice[] = Array.from({ length: limit }).map((_, i) => ({
+    id: `mock-inv-${i}`,
+    invoice_number: `INV-${Math.floor(1000 + Math.random() * 9000)}`,
+    invoice_date: new Date(Date.now() - i * 86400000).toISOString(), // Each one day apart
+    customer_name: `Customer ${i + 1}`,
+    customer_address: `Address ${i + 1}`,
+    customer_gstin: i % 2 === 0 ? `GSTIN${1000 + i}` : undefined,
+    customer_dl_number: i % 3 === 0 ? `DL-${2000 + i}` : undefined,
+    customer_pan: i % 2 === 1 ? `PAN${3000 + i}` : undefined,
+    total_amount: 1000 * (i + 1),
+    total_tax: 180 * (i + 1),
+    grand_total: 1180 * (i + 1),
+    payment_type: i % 2 === 0 ? 'cash' : 'credit',
+    notes: i % 3 === 0 ? "Some notes" : "",
+    created_at: new Date(Date.now() - i * 86400000).toISOString(),
+    created_by: "user-123"
+  }));
+  
+  return mockInvoices;
 };
+
