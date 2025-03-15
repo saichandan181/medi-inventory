@@ -6,8 +6,14 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { format } from 'date-fns';
 import { Activity, ArrowRight, Plus } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
-export const RecentTransactions = () => {
+interface RecentTransactionsProps {
+  onNewTransaction?: () => void;
+}
+
+export const RecentTransactions = ({ onNewTransaction }: RecentTransactionsProps) => {
+  const navigate = useNavigate();
   const { data: transactions, isLoading, error } = useQuery({
     queryKey: ['recentTransactions'],
     queryFn: () => getRecentTransactions(5)
@@ -43,7 +49,11 @@ export const RecentTransactions = () => {
           <Activity size={18} className="text-secondary-500" />
           <h3 className="font-medium">Recent Transactions</h3>
         </div>
-        <Button className="bg-secondary-500 hover:bg-secondary-600" size="sm">
+        <Button 
+          className="bg-secondary-500 hover:bg-secondary-600" 
+          size="sm"
+          onClick={onNewTransaction}
+        >
           <Plus className="h-3.5 w-3.5 mr-1" />
           New Transaction
         </Button>
@@ -89,7 +99,11 @@ export const RecentTransactions = () => {
       </div>
       
       <div className="px-5 py-3 border-t border-border">
-        <Button variant="ghost" className="text-sm text-secondary-500 hover:text-secondary-600 font-medium">
+        <Button 
+          variant="ghost" 
+          className="text-sm text-secondary-500 hover:text-secondary-600 font-medium"
+          onClick={() => navigate('/invoices')}
+        >
           View all transactions
           <ArrowRight className="ml-1 h-4 w-4" />
         </Button>
