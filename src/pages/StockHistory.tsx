@@ -5,12 +5,15 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
 import { useQuery } from "@tanstack/react-query";
-import { getRecentTransactions } from "@/services/inventoryService";
+import { getRecentTransactions } from "@/services/transactionService";
+import { useState } from "react";
 
 const StockHistory = () => {
-  const { data: transactions, isLoading } = useQuery({
-    queryKey: ['transactions'],
-    queryFn: () => getRecentTransactions(100) // Get up to 100 transactions
+  const [transactionLimit, setTransactionLimit] = useState(100);
+  
+  const { data: transactions, isLoading, error } = useQuery({
+    queryKey: ['transactions', transactionLimit],
+    queryFn: () => getRecentTransactions(transactionLimit) // Get up to 100 transactions
   });
 
   const getTransactionTypeDisplay = (type: string) => {
@@ -28,6 +31,10 @@ const StockHistory = () => {
     }
   };
 
+  if (error) {
+    console.error('Error loading transactions:', error);
+  }
+
   return (
     <MainLayout>
       <PageHeader
@@ -39,6 +46,10 @@ const StockHistory = () => {
         <div className="overflow-x-auto">
           {isLoading ? (
             <div className="p-8 text-center">Loading transactions...</div>
+          ) : error ? (
+            <div className="p-8 text-center text-red-500">
+              Error loading transactions. Please try again.
+            </div>
           ) : transactions && transactions.length > 0 ? (
             <Table>
               <TableHeader>
