@@ -1,3 +1,4 @@
+
 import { supabase } from '@/integrations/supabase/client';
 
 // Define types for our data models
@@ -303,8 +304,14 @@ export const createInvoice = async (
     throw new Error(itemsError.message);
   }
   
+  // Make sure payment_type is cast to the correct type
+  const typedInvoice = {
+    ...insertedInvoice,
+    payment_type: insertedInvoice.payment_type as 'cash' | 'credit'
+  };
+  
   return {
-    invoice: insertedInvoice,
+    invoice: typedInvoice as Invoice,
     items: insertedItems as InvoiceItem[]
   };
 };
@@ -341,8 +348,14 @@ export const getInvoiceWithItems = async (
     throw new Error(itemsError.message);
   }
   
+  // Ensure payment_type is the correct type
+  const typedInvoice = {
+    ...invoice,
+    payment_type: invoice.payment_type as 'cash' | 'credit'
+  };
+  
   return {
-    invoice: invoice as Invoice,
+    invoice: typedInvoice as Invoice,
     items: items as InvoiceItem[]
   };
 };
@@ -359,5 +372,11 @@ export const getRecentInvoices = async (limit = 100): Promise<Invoice[]> => {
     throw new Error(error.message);
   }
   
-  return data as Invoice[];
+  // Ensure all payment_type values are the correct type
+  const typedData = data?.map(invoice => ({
+    ...invoice,
+    payment_type: invoice.payment_type as 'cash' | 'credit'
+  })) || [];
+  
+  return typedData as Invoice[];
 };
