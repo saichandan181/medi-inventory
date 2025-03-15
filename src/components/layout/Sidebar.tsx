@@ -13,7 +13,8 @@ import {
   AlertTriangle,
   LogOut,
   ChevronDown,
-  ChevronRight
+  ChevronRight,
+  Receipt
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -133,7 +134,6 @@ export const Sidebar = ({ isOpen, onClose, isMobileView }: SidebarProps) => {
               icon={Home} 
               label="Dashboard" 
               to="/" 
-              active 
             />
           </div>
           
@@ -189,6 +189,11 @@ export const Sidebar = ({ isOpen, onClose, isMobileView }: SidebarProps) => {
             <p className="px-3 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
               Reports
             </p>
+            <NavItem 
+              icon={Receipt} 
+              label="Sales Reports" 
+              to="/sales-reports" 
+            />
             <NavItem 
               icon={BarChart3} 
               label="Analytics" 

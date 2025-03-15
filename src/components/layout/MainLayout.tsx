@@ -6,6 +6,7 @@ import { ThemeToggle } from "./ThemeToggle";
 import { Sidebar } from "./Sidebar";
 import { Button } from "@/components/ui/button";
 import { UserProfileMenu } from "./UserProfileMenu";
+import { useNavigate } from "react-router-dom";
 
 interface MainLayoutProps {
   children: React.ReactNode;
@@ -14,6 +15,8 @@ interface MainLayoutProps {
 export const MainLayout = ({ children }: MainLayoutProps) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isMobileView, setIsMobileView] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const navigate = useNavigate();
 
   // Check if mobile view on mount and window resize
   useEffect(() => {
@@ -38,6 +41,14 @@ export const MainLayout = ({ children }: MainLayoutProps) => {
     setIsSidebarOpen(!isSidebarOpen);
   };
 
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      // Navigate to medicines page with search query
+      navigate(`/medicines?search=${encodeURIComponent(searchQuery.trim())}`);
+    }
+  };
+
   return (
     <div className="min-h-screen flex flex-col bg-background text-foreground overflow-hidden">
       {/* Header */}
@@ -55,14 +66,16 @@ export const MainLayout = ({ children }: MainLayoutProps) => {
             <span className="font-inter font-bold text-xl">MedInventory<span className="text-secondary-500">360</span></span>
           </div>
         </div>
-        <div className="hidden md:flex items-center px-2 py-1 rounded-full bg-muted/80">
+        <form onSubmit={handleSearch} className="hidden md:flex items-center px-2 py-1 rounded-full bg-muted/80">
           <Search size={16} className="text-muted-foreground mr-2" />
           <input 
             type="text" 
-            placeholder="Search inventory, suppliers..." 
+            placeholder="Search medicines, suppliers..." 
             className="bg-transparent border-none outline-none text-sm w-64"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
           />
-        </div>
+        </form>
         <div className="flex items-center gap-2">
           <Button variant="ghost" size="icon" className="transition-apple hover:bg-secondary-100/20 dark:hover:bg-secondary-900/20">
             <Bell size={20} className="text-primary-300" />

@@ -22,7 +22,7 @@ import NotFound from './pages/NotFound';
 import Invoices from './pages/Invoices';
 import InvoiceDetail from './pages/InvoiceDetail';
 import MedicineCategories from "@/pages/MedicineCategories";
-import DailyReports from '@/pages/DailyReports';
+import SalesReports from '@/pages/SalesReports';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -103,9 +103,9 @@ function App() {
                   <MedicineCategories />
                 </ProtectedRoute>
               } />
-              <Route path="/daily-reports" element={
+              <Route path="/sales-reports" element={
                 <ProtectedRoute>
-                  <DailyReports />
+                  <SalesReports />
                 </ProtectedRoute>
               } />
               <Route path="*" element={<NotFound />} />

@@ -1,6 +1,6 @@
 
 import { supabase } from '@/integrations/supabase/client';
-import { Transaction } from './inventoryService';
+import { Transaction } from './types';
 
 export type PeriodType = 'daily' | 'monthly' | 'yearly';
 
@@ -53,11 +53,7 @@ export const getSalesReport = async (
   }
 
   // Process data based on period type
-  // Cast the raw data to the correct Transaction type
-  const typedTransactions = (transactions || []).map(tx => ({
-    ...tx,
-    type: tx.type as 'sale' | 'purchase' | 'return' | 'adjustment'
-  })) as Transaction[];
+  const typedTransactions = transactions as Transaction[];
   
   return aggregateTransactionsByPeriod(typedTransactions, periodType);
 };
