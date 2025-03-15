@@ -9,6 +9,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { AddCategoryDialog } from "@/components/categories/AddCategoryDialog";
 
 interface Category {
   id: string;
@@ -107,8 +108,7 @@ const MedicineCategories = () => {
         </div>
       </div>
 
-      {/* TODO: Add category dialog component here */}
-      {/* This will be implemented in a separate component */}
+      <AddCategoryDialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen} />
     </MainLayout>
   );
 };

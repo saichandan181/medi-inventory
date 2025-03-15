@@ -9,6 +9,129 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      invoice_items: {
+        Row: {
+          batch_number: string
+          created_at: string
+          discount_percentage: number
+          expiry_date: string
+          free_quantity: number
+          gst_amount: number
+          gst_percentage: number
+          hsn_code: string
+          id: string
+          invoice_id: string
+          medicine_id: string | null
+          mrp: number
+          quantity: number
+          rate: number
+          total_amount: number
+        }
+        Insert: {
+          batch_number: string
+          created_at?: string
+          discount_percentage?: number
+          expiry_date: string
+          free_quantity?: number
+          gst_amount?: number
+          gst_percentage?: number
+          hsn_code: string
+          id?: string
+          invoice_id: string
+          medicine_id?: string | null
+          mrp: number
+          quantity: number
+          rate: number
+          total_amount?: number
+        }
+        Update: {
+          batch_number?: string
+          created_at?: string
+          discount_percentage?: number
+          expiry_date?: string
+          free_quantity?: number
+          gst_amount?: number
+          gst_percentage?: number
+          hsn_code?: string
+          id?: string
+          invoice_id?: string
+          medicine_id?: string | null
+          mrp?: number
+          quantity?: number
+          rate?: number
+          total_amount?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "invoice_items_invoice_id_fkey"
+            columns: ["invoice_id"]
+            isOneToOne: false
+            referencedRelation: "invoices"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invoice_items_medicine_id_fkey"
+            columns: ["medicine_id"]
+            isOneToOne: false
+            referencedRelation: "medicines"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      invoices: {
+        Row: {
+          created_at: string
+          created_by: string
+          customer_address: string | null
+          customer_dl_number: string | null
+          customer_gstin: string | null
+          customer_name: string
+          customer_pan: string | null
+          grand_total: number
+          id: string
+          invoice_date: string
+          invoice_number: string
+          notes: string | null
+          payment_type: string
+          total_amount: number
+          total_tax: number
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          customer_address?: string | null
+          customer_dl_number?: string | null
+          customer_gstin?: string | null
+          customer_name: string
+          customer_pan?: string | null
+          grand_total?: number
+          id?: string
+          invoice_date?: string
+          invoice_number: string
+          notes?: string | null
+          payment_type: string
+          total_amount?: number
+          total_tax?: number
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          customer_address?: string | null
+          customer_dl_number?: string | null
+          customer_gstin?: string | null
+          customer_name?: string
+          customer_pan?: string | null
+          grand_total?: number
+          id?: string
+          invoice_date?: string
+          invoice_number?: string
+          notes?: string | null
+          payment_type?: string
+          total_amount?: number
+          total_tax?: number
+        }
+        Relationships: []
+      }
       medicine_categories: {
         Row: {
           created_at: string | null
