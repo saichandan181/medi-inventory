@@ -1,4 +1,5 @@
 
+import { useState } from "react";
 import { MainLayout } from "@/components/layout/MainLayout";
 import { PageHeader } from "@/components/common/PageHeader";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -7,12 +8,13 @@ import { getSuppliers } from "@/services/inventoryService";
 import { Plus, FileDown, Search, Phone, Mail, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useState } from "react";
+import { AddSupplierDialog } from "@/components/suppliers/AddSupplierDialog";
 
 const Suppliers = () => {
   const [searchTerm, setSearchTerm] = useState("");
+  const [isAddSupplierOpen, setIsAddSupplierOpen] = useState(false);
 
-  const { data: suppliers, isLoading } = useQuery({
+  const { data: suppliers, isLoading, refetch } = useQuery({
     queryKey: ['suppliers'],
     queryFn: getSuppliers
   });
@@ -22,6 +24,10 @@ const Suppliers = () => {
     (supplier.contact_person && supplier.contact_person.toLowerCase().includes(searchTerm.toLowerCase())) ||
     (supplier.email && supplier.email.toLowerCase().includes(searchTerm.toLowerCase()))
   );
+
+  const handleSupplierAdded = () => {
+    refetch();
+  };
 
   return (
     <MainLayout>
@@ -34,7 +40,7 @@ const Suppliers = () => {
               <FileDown className="mr-2 h-4 w-4" />
               Export
             </Button>
-            <Button>
+            <Button onClick={() => setIsAddSupplierOpen(true)}>
               <Plus className="mr-2 h-4 w-4" />
               Add Supplier
             </Button>
@@ -111,6 +117,12 @@ const Suppliers = () => {
           )}
         </div>
       </div>
+
+      <AddSupplierDialog 
+        open={isAddSupplierOpen} 
+        onOpenChange={setIsAddSupplierOpen} 
+        onSupplierAdded={handleSupplierAdded}
+      />
     </MainLayout>
   );
 };
