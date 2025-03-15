@@ -2,7 +2,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 
-const GEMINI_API_KEY = "AIzaSyC5uX4DEObRUXW6fsRdTFESeb1xl7K_nKQ";
+const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY") || "AIzaSyC5uX4DEObRUXW6fsRdTFESeb1xl7K_nKQ";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
