@@ -85,6 +85,45 @@ create table if not exists transactions (
   created_by uuid references auth.users(id)
 );
 
+-- Invoices table
+create table if not exists invoices (
+  id uuid primary key default uuid_generate_v4(),
+  invoice_number text not null,
+  invoice_date timestamp with time zone not null default now(),
+  customer_name text not null,
+  customer_phone text,
+  customer_address text,
+  customer_gstin text,
+  customer_dl_number text,
+  customer_pan text,
+  total_amount decimal(10, 2) not null default 0,
+  total_tax decimal(10, 2) not null default 0,
+  grand_total decimal(10, 2) not null default 0,
+  payment_type text not null,
+  notes text,
+  created_at timestamp with time zone not null default now(),
+  created_by text not null
+);
+
+-- Invoice items table
+create table if not exists invoice_items (
+  id uuid primary key default uuid_generate_v4(),
+  invoice_id uuid references invoices(id) on delete cascade,
+  medicine_id uuid references medicines(id),
+  batch_number text not null,
+  expiry_date date not null,
+  hsn_code text not null,
+  quantity integer not null,
+  free_quantity integer not null default 0,
+  discount_percentage decimal not null default 0,
+  mrp decimal not null,
+  rate decimal not null,
+  gst_percentage decimal not null default 0,
+  gst_amount decimal not null default 0,
+  total_amount decimal not null default 0,
+  created_at timestamp with time zone not null default now()
+);
+
 -- Enable RLS on all tables
 alter table medicine_categories enable row level security;
 alter table suppliers enable row level security;
@@ -92,6 +131,8 @@ alter table medicines enable row level security;
 alter table purchase_orders enable row level security;
 alter table purchase_order_items enable row level security;
 alter table transactions enable row level security;
+alter table invoices enable row level security;
+alter table invoice_items enable row level security;
 
 -- Create policies for authenticated users
 create policy "Authenticated users can read all medicine categories"
@@ -121,6 +162,16 @@ create policy "Authenticated users can read all purchase order items"
 
 create policy "Authenticated users can read all transactions"
   on transactions for select
+  to authenticated
+  using (true);
+
+create policy "Authenticated users can read all invoices"
+  on invoices for select
+  to authenticated
+  using (true);
+
+create policy "Authenticated users can read all invoice items"
+  on invoice_items for select
   to authenticated
   using (true);
 

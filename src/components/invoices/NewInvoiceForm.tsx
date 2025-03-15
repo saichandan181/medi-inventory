@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -21,10 +20,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 
 const customerFormSchema = z.object({
   customer_name: z.string().min(2, "Customer name must be at least 2 characters"),
-  customer_address: z.string().optional(),
-  customer_gstin: z.string().optional(),
-  customer_dl_number: z.string().optional(),
-  customer_pan: z.string().optional(),
+  customer_phone: z.string().optional(),
   invoice_date: z.date(),
   payment_type: z.enum(["cash", "credit"]),
 });
@@ -66,10 +62,7 @@ export const NewInvoiceForm = ({ onSuccess }: NewInvoiceFormProps) => {
     resolver: zodResolver(customerFormSchema),
     defaultValues: {
       customer_name: "",
-      customer_address: "",
-      customer_gstin: "",
-      customer_dl_number: "",
-      customer_pan: "",
+      customer_phone: "",
       invoice_date: new Date(),
       payment_type: "cash",
     },
@@ -163,10 +156,11 @@ export const NewInvoiceForm = ({ onSuccess }: NewInvoiceFormProps) => {
         invoice_number: invoiceNumber,
         invoice_date: data.invoice_date.toISOString(),
         customer_name: data.customer_name,
-        customer_address: data.customer_address || "",
-        customer_gstin: data.customer_gstin || "",
-        customer_dl_number: data.customer_dl_number || "",
-        customer_pan: data.customer_pan || "",
+        customer_phone: data.customer_phone || "",
+        customer_address: "",
+        customer_gstin: "",
+        customer_dl_number: "",
+        customer_pan: "",
         total_amount: subtotal,
         total_tax: totalTax,
         grand_total: grandTotal,
@@ -279,12 +273,12 @@ export const NewInvoiceForm = ({ onSuccess }: NewInvoiceFormProps) => {
 
             <FormField
               control={form.control}
-              name="customer_address"
+              name="customer_phone"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Customer Address</FormLabel>
+                  <FormLabel>Customer Phone</FormLabel>
                   <FormControl>
-                    <Input placeholder="Enter customer address" {...field} />
+                    <Input placeholder="Enter customer phone number" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -311,48 +305,6 @@ export const NewInvoiceForm = ({ onSuccess }: NewInvoiceFormProps) => {
                       <SelectItem value="credit">Credit</SelectItem>
                     </SelectContent>
                   </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="customer_gstin"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Customer GSTIN</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Enter customer GSTIN" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="customer_pan"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Customer PAN</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Enter customer PAN" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="customer_dl_number"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Customer DL Number</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Enter customer DL number" {...field} />
-                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}

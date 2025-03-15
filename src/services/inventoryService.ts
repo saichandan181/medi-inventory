@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 
 // Define types for our data models
@@ -19,7 +18,6 @@ export interface Medicine {
   updated_at: string;
 }
 
-// Type for creating a new medicine that accepts Date for expiry_date
 export type CreateMedicineInput = Omit<Medicine, 'id' | 'created_at' | 'updated_at' | 'expiry_date'> & {
   expiry_date: Date;
 };
@@ -48,19 +46,18 @@ export interface Transaction {
   notes?: string;
   created_at: string;
   created_by: string;
-  // Add medicine relation to match joined data from Supabase
   medicine?: {
     name: string;
   };
 }
 
-// New Invoice interface
 export interface Invoice {
   id: string;
   invoice_number: string;
   invoice_date: string;
   supplier_id?: string;
   customer_name: string;
+  customer_phone?: string;
   customer_gstin?: string;
   customer_address?: string;
   customer_dl_number?: string;
@@ -95,7 +92,6 @@ export interface InvoiceItem {
   };
 }
 
-// Medicine operations
 export const getMedicines = async (): Promise<Medicine[]> => {
   const { data, error } = await supabase
     .from('medicines')
@@ -126,7 +122,6 @@ export const getMedicineById = async (id: string): Promise<Medicine | null> => {
 };
 
 export const createMedicine = async (medicine: CreateMedicineInput): Promise<Medicine> => {
-  // Convert Date object to ISO string for Supabase
   const formattedMedicine = {
     ...medicine,
     expiry_date: medicine.expiry_date.toISOString().split('T')[0]
@@ -174,7 +169,6 @@ export const deleteMedicine = async (id: string): Promise<void> => {
   }
 };
 
-// Supplier operations
 export const getSuppliers = async (): Promise<Supplier[]> => {
   const { data, error } = await supabase
     .from('suppliers')
@@ -189,7 +183,6 @@ export const getSuppliers = async (): Promise<Supplier[]> => {
   return data || [];
 };
 
-// Transaction operations
 export const getRecentTransactions = async (limit = 5): Promise<Transaction[]> => {
   const { data, error } = await supabase
     .from('transactions')
@@ -202,7 +195,6 @@ export const getRecentTransactions = async (limit = 5): Promise<Transaction[]> =
     throw new Error(error.message);
   }
   
-  // Ensure the data matches our Transaction type
   const typedData = data?.map(item => ({
     ...item,
     type: item.type as 'purchase' | 'sale' | 'return' | 'adjustment'
@@ -211,7 +203,6 @@ export const getRecentTransactions = async (limit = 5): Promise<Transaction[]> =
   return typedData;
 };
 
-// Low stock medicines
 export const getLowStockMedicines = async (): Promise<Medicine[]> => {
   const { data, error } = await supabase
     .from('medicines')
@@ -227,7 +218,6 @@ export const getLowStockMedicines = async (): Promise<Medicine[]> => {
   return data || [];
 };
 
-// Expiring medicines
 export const getExpiringMedicines = async (daysThreshold = 30): Promise<Medicine[]> => {
   const thresholdDate = new Date();
   thresholdDate.setDate(thresholdDate.getDate() + daysThreshold);
@@ -247,7 +237,6 @@ export const getExpiringMedicines = async (daysThreshold = 30): Promise<Medicine
   return data || [];
 };
 
-// Dashboard stats
 export const getDashboardStats = async () => {
   const [medicinesResult, suppliersResult, lowStockResult, pendingOrdersResult] = await Promise.all([
     supabase.from('medicines').select('count').single(),
@@ -264,12 +253,10 @@ export const getDashboardStats = async () => {
   };
 };
 
-// Invoice operations
 export const createInvoice = async (
   invoice: Omit<Invoice, 'id' | 'created_at'>, 
   invoiceItems: Omit<InvoiceItem, 'id' | 'invoice_id'>[]
 ): Promise<{ invoice: Invoice, items: InvoiceItem[] }> => {
-  // Insert the invoice record
   const { data: insertedInvoice, error: invoiceError } = await supabase
     .from('invoices')
     .insert([invoice])
@@ -281,13 +268,11 @@ export const createInvoice = async (
     throw new Error(invoiceError.message);
   }
   
-  // Prepare invoice items with the invoice_id
   const itemsWithInvoiceId = invoiceItems.map(item => ({
     ...item,
     invoice_id: insertedInvoice.id
   }));
   
-  // Insert the invoice items
   const { data: insertedItems, error: itemsError } = await supabase
     .from('invoice_items')
     .insert(itemsWithInvoiceId)
@@ -304,7 +289,6 @@ export const createInvoice = async (
     throw new Error(itemsError.message);
   }
   
-  // Make sure payment_type is cast to the correct type
   const typedInvoice = {
     ...insertedInvoice,
     payment_type: insertedInvoice.payment_type as 'cash' | 'credit'
@@ -319,7 +303,6 @@ export const createInvoice = async (
 export const getInvoiceWithItems = async (
   invoiceId: string
 ): Promise<{ invoice: Invoice, items: InvoiceItem[] }> => {
-  // Fetch the invoice
   const { data: invoice, error: invoiceError } = await supabase
     .from('invoices')
     .select('*')
@@ -331,7 +314,6 @@ export const getInvoiceWithItems = async (
     throw new Error(invoiceError.message);
   }
   
-  // Fetch the invoice items
   const { data: items, error: itemsError } = await supabase
     .from('invoice_items')
     .select(`
@@ -348,7 +330,6 @@ export const getInvoiceWithItems = async (
     throw new Error(itemsError.message);
   }
   
-  // Ensure payment_type is the correct type
   const typedInvoice = {
     ...invoice,
     payment_type: invoice.payment_type as 'cash' | 'credit'
@@ -372,7 +353,6 @@ export const getRecentInvoices = async (limit = 100): Promise<Invoice[]> => {
     throw new Error(error.message);
   }
   
-  // Ensure all payment_type values are the correct type
   const typedData = data?.map(invoice => ({
     ...invoice,
     payment_type: invoice.payment_type as 'cash' | 'credit'
