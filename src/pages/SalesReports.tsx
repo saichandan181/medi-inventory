@@ -66,6 +66,15 @@ const SalesReports = () => {
     }));
   }, [reportData, periodType]);
 
+  // Format currency in INR
+  const formatINR = (value: number) => {
+    return new Intl.NumberFormat('en-IN', {
+      style: 'currency',
+      currency: 'INR',
+      maximumFractionDigits: 2
+    }).format(value);
+  };
+
   // Calculate summary stats
   const totalSales = useMemo(() => {
     if (!reportData) return 0;
@@ -129,7 +138,7 @@ const SalesReports = () => {
             <CardTitle className="text-sm font-medium">Total Sales</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">${totalSales.toFixed(2)}</div>
+            <div className="text-2xl font-bold">{formatINR(totalSales)}</div>
             <p className="text-xs text-muted-foreground">
               For the selected period
             </p>
@@ -156,7 +165,7 @@ const SalesReports = () => {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">${averageSalePerDay.toFixed(2)}</div>
+            <div className="text-2xl font-bold">{formatINR(averageSalePerDay)}</div>
             <p className="text-xs text-muted-foreground">
               Average per {periodType.slice(0, -2)}
             </p>
@@ -187,11 +196,11 @@ const SalesReports = () => {
                 <XAxis dataKey="period" />
                 <YAxis />
                 <Tooltip 
-                  formatter={(value) => [`$${value}`, 'Sales']}
+                  formatter={(value) => [formatINR(value as number), 'Sales']}
                   labelFormatter={(label) => `Period: ${label}`}
                 />
                 <Legend />
-                <Bar dataKey="totalSales" name="Sales ($)" fill="#4f46e5" />
+                <Bar dataKey="totalSales" name="Sales (₹)" fill="#4f46e5" />
               </BarChart>
             </ResponsiveContainer>
           ) : (
